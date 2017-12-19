@@ -3,7 +3,7 @@ import sys
 
 def log(line, level=0, sep=' -- '):
     if cmd_log_level() is not None and cmd_log_level() >= level:
-        print "%s %s" % (sep * level, line)
+        print("%s %s" % (sep * level, line))
 
 
 def get_stdin():

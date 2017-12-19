@@ -1,5 +1,5 @@
 import os
-import cPickle as pickle
+import pickle
 from cmd_utils import log
 
 

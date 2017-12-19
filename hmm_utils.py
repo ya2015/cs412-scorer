@@ -1,7 +1,7 @@
 import os
 import nltk
 from tag_utils import sets_of_tags, serialize_tags
-import cPickle as pickle
+import pickle
 import tree_utils
 import cmd_utils
 

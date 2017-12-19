@@ -1,4 +1,4 @@
-import cPickle as pickle
+import pickle
 import os
 
 
@@ -75,7 +75,7 @@ def get_cached_counts(file_name='tag_counts.data', worker_func=None):
         return data
     except (IOError, EOFError):
         import nltk.corpus
-        print "Building counts from Penn Treebank corpus"
+        print("Building counts from Penn Treebank corpus")
 
         f = open(os.path.join('cache', file_name), 'w')
         tags_counts = dict()
@@ -84,7 +84,7 @@ def get_cached_counts(file_name='tag_counts.data', worker_func=None):
             tags_counts.setdefault('START', 0)
             tags_counts['START'] += 1
             i += 1
-            print "Parsing Sentence %d" % (i,)
+            print("Parsing Sentence %d" % (i,))
             tags = sent_as_tags(sentence)
 
             if worker_func:
@@ -95,7 +95,7 @@ def get_cached_counts(file_name='tag_counts.data', worker_func=None):
                     serialized = serialize_tags(set_of_tags)
                     tags_counts.setdefault(serialized, 0)
                     tags_counts[serialized] += 1
-        print "Finished building tag counts"
+        print("Finished building tag counts")
         pickle.dump(tags_counts, f)
         f.close()
         return tags_counts

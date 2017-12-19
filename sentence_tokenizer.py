@@ -205,17 +205,17 @@ def parse_sentences(line, use_cache=True, include_prob=False):
                 sentence_tree = sentence_trees[0]
 
             if cmd_log_level() >= 4:
-                print "--------"
-                print "Pre Simplified Tree"
-                print sentence_tree
+                print("--------")
+                print("Pre Simplified Tree")
+                print(sentence_tree)
 
             tree_utils.simplify_tree(sentence_tree,
                                      remove_starting_cc=possible_sentences.index(possible_sentence) == 0)
 
             if cmd_log_level() >= 4:
-                print "--------"
-                print "Post Simplified Tree"
-                print sentence_tree
+                print("--------")
+                print("Post Simplified Tree")
+                print(sentence_tree)
 
             sentence_transitions = tree_utils.transitions_in_tree(sentence_tree)
 
@@ -233,7 +233,7 @@ def parse_sentences(line, use_cache=True, include_prob=False):
                 for transition in sentence_transitions:
                     try:
                         probs = hmm_utils.prob_of_all_transitions(transition, counts, gram_size=3)
-                    except KeyError, e:
+                    except KeyError as e:
                         log("'Imposible' Tag order", 2, sep=' ** ')
                         log("%s" % (e,), 2, sep=' ** ')
                         probs = [0]
@@ -272,7 +272,7 @@ def parse_sentences(line, use_cache=True, include_prob=False):
 if __name__ == '__main__':
     ## Simple method for testing from STDIN
     if use_stdin:
-        print parse_sentences(cmd_utils.get_stdin())
+        print(parse_sentences(cmd_utils.get_stdin()))
     else:
         essays = essay_utils.essays if essay_index == -1 else [essay_utils.essays[essay_index]]
 
@@ -301,8 +301,8 @@ if __name__ == '__main__':
 
         log("Num Wrong Answers: %d" % (wrong_tally,), 0)
         for row in wrong_answers:
-            print row
+            print(row)
 
         log("Counts", 0)
         for row in essays_in_corpus:
-            print row
+            print(row)
