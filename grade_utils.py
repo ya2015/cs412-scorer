@@ -153,12 +153,12 @@ if __name__ == '__main__':
             log("Expect %s score: %d" % (test, correct_essay_grade(essay_index, test)), 0)
             log("Received %s score: %d" % (test, received_grade), 0)
         else:
-            print "Values for %s" % (test,)
-            print "-------------"
+            print("Values for %s" % (test,))
+            print("-------------")
             for i in range(0, len(essay_utils.essays)):
                 essay_text = "\n".join(essay_utils.essays[i])
                 received_grade = grade_text(essay_text, test)
                 expected_grade = correct_essay_grade(i, test)
                 diff = received_grade - expected_grade
-                print " | ".join([str(s) for s in [(i + 1), expected_grade, received_grade, diff, abs(diff)]])
-            print "\n\n"
+                print(" | ".join([str(s) for s in [(i + 1), expected_grade, received_grade, diff, abs(diff)]]))
+            print("\n\n")

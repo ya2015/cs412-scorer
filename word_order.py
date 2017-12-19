@@ -82,8 +82,8 @@ def issues_in_sentence(sentence, use_cache=True):
 
     log("Looking for order issues in: %s" % (sentence,), 1)
     if cmd_log_level() >= 4:
-        print "Simplified Parse Tree"
-        print tree
+        print("Simplified Parse Tree")
+        print(tree)
 
     problems = []
     problems += ["VP->NP in S"] * num_forbidden_orders(tree, ("S",), ('VP', 'NP'))
@@ -146,4 +146,4 @@ if __name__ == "__main__":
                 issues_in_sentence = issues_in_sentence(sentence)
                 issues_in_text += issues_in_sentence
                 issues_in_line += issues_in_sentence
-    print issues_in_text
+    print(issues_in_text)

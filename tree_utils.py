@@ -32,8 +32,9 @@ def simplify_tree(tree, remove_starting_cc=False, trim_adjecent_prop_nouns=False
             NNS='NN',
             NNPS='NNP',
         )
-        for a_tree in tree.subtrees(lambda x: x.node in plural_transforms):
-            a_tree.node = plural_transforms[a_tree.node]
+        # chang .node to label
+        for a_tree in tree.subtrees(lambda x: x.label in plural_transforms):
+            a_tree.label = plural_transforms[a_tree.label]
 
     if normalize_case:
         case_transforms = dict(
@@ -43,12 +44,13 @@ def simplify_tree(tree, remove_starting_cc=False, trim_adjecent_prop_nouns=False
             VBP='VB',
             VBZ='VB'
         )
-        for a_tree in tree.subtrees(lambda x: x.node in case_transforms):
-            a_tree.node = case_transforms[a_tree.node]
+         # chang .node to label
+        for a_tree in tree.subtrees(lambda x: x.label in case_transforms):
+            a_tree.label = case_transforms[a_tree.label]
 
     if normalize_sent_roots:
-        for a_tree in tree.subtrees(lambda x: x.node in semi_tree_roots):
-            a_tree.node = "S"
+        for a_tree in tree.subtrees(lambda x: x.label in semi_tree_roots):
+            a_tree.label = "S"
 
     if trim_adjecent_prop_nouns:
         np_trees = list(tree.subtrees(lambda x: x.node == "NP"))
@@ -114,7 +116,7 @@ def transitions_in_tree(tree):
             if node.__class__ == str:
                 continue
 
-            simple_node = simple_tag(node.node)
+            simple_node = simple_tag(node.label())
             if is_valid_tag(simple_node):
                 children.append(simple_node)
         simplified_transitions = simplify_tags(children)

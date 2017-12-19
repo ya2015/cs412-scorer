@@ -3,7 +3,7 @@ is pretty hacky, and just ammounts to running a java command and piping
 things back into python, but thursday is pretty close so what can I do?
 """
 import os
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import run, PIPE
 from nltk.tree import ParentedTree
 import nltk
 from cache_utils import cache_get, cache_set
@@ -20,8 +20,9 @@ def _standford_parser_cmd(format='oneline'):
 
 
 def _exec_cmd(cmd, input):
-    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-    response = p.communicate(input=input)[0]
+    p = run(cmd, input=input, stdout=PIPE, encoding='UTF-8')
+    response = p.stdout
+    print(response)
     return response
 
 
@@ -98,8 +99,8 @@ def parse(sentence, use_cache=True, parser='stanford'):
     # throw away the garbgage we don't want from the parser's response.
     # this could probably get us in trouble since it'll hide errors etc,
     # but we got deadlines....
-    trees = [ParentedTree.parse(line) for line in valid_lines]
-
+    # ParentedTree.parse(line)--> the function is no longer valid
+    trees = [ParentedTree.fromstring(line) for line in valid_lines]
     return trees
 
 
