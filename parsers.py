@@ -104,14 +104,17 @@ def parse(sentence, use_cache=True, parser='stanford'):
     return trees
 
 
-def dependences(sentence, use_cache=True):
+def dependences(sentence, use_cache=False):
     import re
 
     if not hasattr(dependences, '_dep_regex'):
         dependences._dep_regex = re.compile(r'(?P<dep_name>.*?)\((?P<first_word>.*?)-(?P<first_loc>\d+), (?P<second_word>.*?)-(?P<second_loc>\d+)\)')
 
     response = _exec_cmd(_standford_parser_cmd(format='typedDependenciesCollapsed'), sentence)
-    deps = response.split("\n")[3:-4]
+    # deps = response.strip().split("\n")
+    deps = response.strip().split("\n")
+    
+    
     matches = []
     for dep in deps:
         a_match = dependences._dep_regex.search(dep)

@@ -33,8 +33,8 @@ def simplify_tree(tree, remove_starting_cc=False, trim_adjecent_prop_nouns=False
             NNPS='NNP',
         )
         # chang .node to label
-        for a_tree in tree.subtrees(lambda x: x.label in plural_transforms):
-            a_tree.label = plural_transforms[a_tree.label]
+        for a_tree in tree.subtrees(lambda x: x.label() in plural_transforms):
+            a_tree.label = plural_transforms[a_tree.label()]
 
     if normalize_case:
         case_transforms = dict(
@@ -45,15 +45,21 @@ def simplify_tree(tree, remove_starting_cc=False, trim_adjecent_prop_nouns=False
             VBZ='VB'
         )
          # chang .node to label
-        for a_tree in tree.subtrees(lambda x: x.label in case_transforms):
-            a_tree.label = case_transforms[a_tree.label]
+        for a_tree in tree.subtrees(lambda x: x.label() in case_transforms):
+            a_tree.label = case_transforms[a_tree.label()]
 
     if normalize_sent_roots:
-        for a_tree in tree.subtrees(lambda x: x.label in semi_tree_roots):
+        print("sei tree:", semi_tree_roots)
+        print("subtree: ",tree.subtrees(semi_tree_roots))
+        for a_tree in tree.subtrees(semi_tree_roots):
+            print(a_tree)
             a_tree.label = "S"
+        # for a_tree in tree.subtrees(lambda x: x.label() in semi_tree_roots):
+        #     print(a_tree)
+        #     # a_tree.label = "S"
 
     if trim_adjecent_prop_nouns:
-        np_trees = list(tree.subtrees(lambda x: x.node == "NP"))
+        np_trees = list(tree.subtrees(lambda x: x.label() == "NP"))
         if len(np_trees) > 0:
             for np_tree in np_trees:
                 num_leaves = len(np_tree)
@@ -61,19 +67,19 @@ def simplify_tree(tree, remove_starting_cc=False, trim_adjecent_prop_nouns=False
                 if num_leaves >= 2:
                     for i in range(0, num_leaves - 1):
                         if not change:
-                            if np_tree[i].node == "NNP" and np_tree[i + 1].node == "NNP":
+                            if np_tree[i].label() == "NNP" and np_tree[i + 1].label() == "NNP":
                                 np_tree.remove(np_tree[i + 1])
                                 change = True
 
     if remove_starting_cc:
-        useful_roots = list(tree.subtrees(lambda x: x.node in semi_tree_roots))
+        useful_roots = list(tree.subtrees(lambda x: x.label() in semi_tree_roots))
         if len(useful_roots) > 0:
             useful_root = useful_roots[0]
-            if useful_root[0].node == "CC":
+            if useful_root[0].label() == "CC":
                 useful_root.remove(useful_root[0])
                 log("REMOVED CC from start of sentence", 2)
 
-    cd_trees = tree.subtrees(lambda x: x.node == "CD")
+    cd_trees = tree.subtrees(lambda x: x.label() == "CD")
     for cd_tree in cd_trees:
         parent_node = cd_tree.parent()
         if parent_node.node == "NP":
@@ -83,8 +89,8 @@ def simplify_tree(tree, remove_starting_cc=False, trim_adjecent_prop_nouns=False
                 log("REMOVED only child CD node", 2)
 
     if collapse_redundant_sbar:
-        for sbar_tree in tree.subtrees(lambda x: x.node == 'SBAR'):
-            if len(sbar_tree) == 1 and sbar_tree[0].node in semi_tree_roots:
+        for sbar_tree in tree.subtrees(lambda x: x.label() == 'SBAR'):
+            if len(sbar_tree) == 1 and sbar_tree[0].label() in semi_tree_roots:
                 sbar_child = sbar_tree[0]
                 sbar_parent = sbar_tree.parent()
                 index = sbar_parent.index(sbar_tree)

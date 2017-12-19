@@ -70,7 +70,7 @@ def is_possible_sentence(tree):
     """Perform some basic filtering to remove unlikely constructs, like
     starting a setnence with because"""
     leaf_trees = tree.subtrees(lambda x: x.height() == 2)
-    leaf_nodes = [n.node for n in leaf_trees]
+    leaf_nodes = [n.label() for n in leaf_trees]
 
     if leaf_nodes[0] in invalid_boundary_tags:
         log("Rejecting sentence becuase it starts with an invalid boundry tag: %s" % (leaf_nodes[0],), 3)
@@ -82,7 +82,7 @@ def is_possible_sentence(tree):
         return False
     else:
         flatten_tags = []
-        useful_roots = list(tree.subtrees(lambda x: (x.node in semi_tree_roots) and len(x) > 1))
+        useful_roots = list(tree.subtrees(lambda x: (x.label() in semi_tree_roots) and len(x) > 1))
 
         if len(useful_roots) == 0 or len(useful_roots[0]) < 2:
             log("Rejecting sentence becuase can't find a useful root", 3)
@@ -91,9 +91,9 @@ def is_possible_sentence(tree):
         sub_tree = useful_roots[0]
 
         for sub_sub_tree in sub_tree:
-            flatten_tags.append(tag_utils.simplify_tag(sub_sub_tree.node))
+            flatten_tags.append(tag_utils.simplify_tag(sub_sub_tree.label()))
 
-        sen_is_inverted = tree[0].node == "SINV"
+        sen_is_inverted = tree[0].label() == "SINV"
 
         if sen_is_inverted:
             early_set = ("VP", "VB")
@@ -121,8 +121,8 @@ def is_possible_sentence(tree):
 def boost_for_sentence_tree(tree):
     weight = 1
 
-    first_np = list(tree.subtrees(lambda x: x.node == "NP"))[0]
-    has_pro = len(list(first_np.subtrees(lambda x: x.node in pers_pro_tags))) > 0
+    first_np = list(tree.subtrees(lambda x: x.label() == "NP"))[0]
+    has_pro = len(list(first_np.subtrees(lambda x: x.label() in pers_pro_tags))) > 0
     if has_pro:
         log("BOOST: Starts with Pers Pronouns", 2)
         weight *= start_pers_pro_weight

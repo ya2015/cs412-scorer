@@ -22,54 +22,54 @@ singluar_prop_nouns = ('he', 'she', 'i', 'him', 'me', 'myself', 'it')
 def check_node_agreement(tree_one, tree_two):
 
     # First determine which node is the noun node
-    if tree_one.node in noun_tags and tree_two.node in noun_tags:
+    if tree_one.label() in noun_tags and tree_two.label() in noun_tags:
         best_pair = select_best_noun_verb(tree_one, tree_two)
         if best_pair:
             noun_tree, verb_tree = best_pair
         else:
             return False
-    elif tree_one.node in noun_tags:
+    elif tree_one.label() in noun_tags:
         noun_tree, verb_tree = tree_one, tree_two
-    elif tree_two.node in noun_tags:
+    elif tree_two.label() in noun_tags:
         verb_tree, noun_tree = tree_one, tree_two
     else:
         raise Exception("No noun tree in this agreement pair!")
 
-    if noun_tree.node in singluar_noun_tags:
+    if noun_tree.label() in singluar_noun_tags:
         noun_3rd_person = True
         noun_singular = True
-    elif noun_tree.node in plural_noun_tags:
+    elif noun_tree.label() in plural_noun_tags:
         noun_3rd_person = True
         noun_singular = False
     # In pronoun siutation and need to disambiguate
-    elif noun_tree.node == "PRP":
+    elif noun_tree.label() == "PRP":
         noun_3rd_person = not is_pronoun_first_person(noun_tree)
         noun_singular = is_pronoun_singluar(noun_tree)
     else:
         raise Exception("Received some unrecognized noun tag: %s" % (noun_tree.node,))
 
-    if verb_tree.node not in verb_tags:
+    if verb_tree.label() not in verb_tags:
         closest_verb_tree = find_commanding_verb_tree(verb_tree)
         if closest_verb_tree:
             verb_tree = closest_verb_tree[0]
 
-    if not verb_tree.node in verb_tags:
+    if not verb_tree.label() in verb_tags:
         raise Exception("No verb in this agrement pair!")
-    if verb_tree.node in singular_verb_tags:
+    if verb_tree.label() in singular_verb_tags:
         verb_singular = True
-    elif verb_tree.node in plural_verb_tags:
+    elif verb_tree.label() in plural_verb_tags:
         verb_singular = False
     else:
         verb_singular = True
 
-    log("Noun: Looks like '%s-%s' is %s (%s)" % (noun_tree[0], noun_tree.node, 'Singular' if noun_singular else 'Plural', "3rd" if noun_3rd_person else "1st"), 2)
-    log("Verb: Looks like '%s-%s' is '%s" % (verb_tree[0], verb_tree.node, 'Singular' if verb_singular else 'Plural'), 2)
+    log("Noun: Looks like '%s-%s' is %s (%s)" % (noun_tree[0], noun_tree.label(), 'Singular' if noun_singular else 'Plural', "3rd" if noun_3rd_person else "1st"), 2)
+    log("Verb: Looks like '%s-%s' is '%s" % (verb_tree[0], verb_tree.label(), 'Singular' if verb_singular else 'Plural'), 2)
 
     noun_1st_person = not noun_3rd_person
-    is_vbp = verb_tree.node == "VBP"
-    is_vbz = verb_tree.node == "VBZ"
+    is_vbp = verb_tree.label() == "VBP"
+    is_vbz = verb_tree.label() == "VBZ"
 
-    if verb_tree.node in general_verb_tags:
+    if verb_tree.label() in general_verb_tags:
         return True
     elif noun_singular and noun_1st_person and is_vbp:
         return True
@@ -78,7 +78,7 @@ def check_node_agreement(tree_one, tree_two):
     elif not noun_singular and noun_3rd_person and is_vbp:
         return True
     else:
-        log("DONT LIKE COMBO: %s" % ({"verb_tag": verb_tree.node, "noun_1st_person": noun_1st_person, "noun_singular": noun_singular},), 2)
+        log("DONT LIKE COMBO: %s" % ({"verb_tag": verb_tree.label(), "noun_1st_person": noun_1st_person, "noun_singular": noun_singular},), 2)
         return False
 
 
@@ -108,8 +108,8 @@ def select_best_noun_verb(tree_one, tree_two):
 
 
 def find_commanding_verb_tree(tree, steps=0):
-    log("looking for verb at root: %s" % (tree.node,), 3)
-    if tree.node in verb_tags:
+    log("looking for verb at root: %s" % (tree.label(),), 3)
+    if tree.label() in verb_tags:
         return (tree, steps)
     else:
         parent_node = tree.parent()
@@ -117,10 +117,10 @@ def find_commanding_verb_tree(tree, steps=0):
             return None
         else:
             for sibling in parent_node:
-                if sibling.node in verb_tags:
+                if sibling.label() in verb_tags:
                     return (sibling, steps + 1)
-                elif sibling.node == "VP":
-                    return (list(sibling.subtrees(lambda x: x.node in verb_tags))[0], steps + 2)
+                elif sibling.label() == "VP":
+                    return (list(sibling.subtrees(lambda x: x.label() in verb_tags))[0], steps + 2)
             return find_commanding_verb_tree(parent_node, steps + 1)
 
 
@@ -135,15 +135,15 @@ def is_pronoun_singluar(tree):
 
 
 def is_sentence_root(tree):
-    if not tree.node in tree_utils.semi_tree_roots:
+    if not tree.label() in tree_utils.semi_tree_roots:
         return False
     else:
-        child_nodes = [c.node for c in tree]
+        child_nodes = [c.label() for c in tree]
         return "NP" in child_nodes and "VP" in child_nodes
 
 
 def shallowest_noun_in_tree(tree):
-    tree.subtrees(lambda x: x.node == "NN" or x.node == "NNS")
+    tree.subtrees(lambda x: x.label() == "NN" or x.label() == "NNS")
 
 
 def node_in_tree(tree, value):
@@ -176,16 +176,19 @@ def parse(text, use_cache=True):
                     num_agrees += line_agreements
                     num_not_agrees += line_non_agreements
                     num_unsure += line_unsure
+                    print("use_cache: ")
                     continue
 
             log("Looking for Sub-Verb agreement in '%s'" % (sentence,), 1)
+            print("Looking for Sub-Verb agreement in '%s'" % (sentence,), 1)
 
             tree = parsers.parse(sentence)[0]
-            dependencies = parsers.dependences(sentence)
+            dependencies = parsers.dependences(sentence, use_cache=False)
             sub_verb_deps = [dep for dep in dependencies if dep['dep_name'] == 'nsubj']
 
             if len(sub_verb_deps) == 0:
                 log("Couldn't find Subject-Verb dependency info", 1)
+                print("Couldn't find Subject-Verb dependency info", 1)
                 cache_utils.cache_set('sub_verb_agreement', sentence, (0, 0, 0))
                 continue
 
@@ -195,7 +198,9 @@ def parse(text, use_cache=True):
                 if first_node and sec_node:
 
                     log("First Dep Node: %s" % (first_node,), 2)
+                    print("First Dep Node: %s" % (first_node,), 2)
                     log("Sec Dep Node: %s" % (sec_node,), 2)
+                    print("Sec Dep Node: %s" % (sec_node,), 2)
 
                     try:
                         is_agreement = check_node_agreement(first_node, sec_node)
@@ -204,10 +209,11 @@ def parse(text, use_cache=True):
                         else:
                             line_non_agreements += 1
                         log("Agreement in sentence? %s" % (is_agreement,), 1)
+                        print("Agreement in sentence? %s" % (is_agreement,), 1)
                     except Exception as e:
                         line_unsure += 1
                         log("Error looking for agreement? %s" % (e.message,), 2)
-
+                        print("Error looking for")
                         # No agreement in pair.  Not sure how to handle.
                         # More exhaustive search?
             if use_cache:
