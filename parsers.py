@@ -104,7 +104,7 @@ def parse(sentence, use_cache=True, parser='stanford'):
     return trees
 
 
-def dependences(sentence, use_cache=False):
+def dependences(sentence, use_cache=True):
     import re
 
     if not hasattr(dependences, '_dep_regex'):

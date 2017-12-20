@@ -1,0 +1,205 @@
+***************
+i am a girl
+***************
+(ROOT (S (NP (FW i)) (VP (VBP am) (NP (DT a) (NN girl))) (. .)))
+nsubj(girl-4, i-1)
+cop(girl-4, am-2)
+det(girl-4, a-3)
+root(ROOT-0, girl-4)
+
+
+tree1: (NN girl)
+tree2: (FW i)
+Noun: 'girl-NN' is Singular (3rd) 2
+Verb: 'am-VBP' is 'Plural 2
+-----------AC-----------
+
+
+***************
+i am girls
+***************
+(ROOT (S (NP (FW i)) (VP (VBP am) (NP (NNS girls))) (. .)))
+nsubj(girls-3, i-1)
+cop(girls-3, am-2)
+root(ROOT-0, girls-3)
+
+
+tree1: (NNS girls)
+tree2: (FW i)
+plural_noun_tags: NNS
+Noun: 'girls-NNS' is Plural (3rd) 2
+Verb: 'am-VBP' is 'Plural 2
+Error: {'verb': ParentedTree('VBP', ['am']), 'verb_tag': 'VBP', 'noun_1st_person': False, 'noun_singular': False} 2
+-----------FAIL-----------
+
+
+***************
+i am a girls
+***************
+(ROOT (S (NP (FW i)) (VP (VBP am) (NP (DT a) (NNS girls))) (. .)))
+nsubj(girls-4, i-1)
+cop(girls-4, am-2)
+det(girls-4, a-3)
+root(ROOT-0, girls-4)
+
+
+tree1: (NNS girls)
+tree2: (FW i)
+plural_noun_tags: NNS
+Noun: 'girls-NNS' is Plural (3rd) 2
+Verb: 'am-VBP' is 'Plural 2
+Error: {'verb': ParentedTree('VBP', ['am']), 'verb_tag': 'VBP', 'noun_1st_person': False, 'noun_singular': False} 2
+-----------FAIL-----------
+
+
+***************
+They is a girl
+***************
+(ROOT (S (NP (PRP They)) (VP (VBZ is) (NP (DT a) (NN girl))) (. .)))
+nsubj(girl-4, They-1)
+cop(girl-4, is-2)
+det(girl-4, a-3)
+root(ROOT-0, girl-4)
+
+
+tree1: (NN girl)
+tree2: (PRP They)
+Noun: 'They-PRP' is Plural (3rd) 2
+Verb: 'is-VBZ' is 'Singular 2
+Error: {'verb': ParentedTree('VBZ', ['is']), 'verb_tag': 'VBZ', 'noun_1st_person': False, 'noun_singular': False} 2
+-----------FAIL-----------
+
+
+***************
+My dog always growls at the postal carrier.
+***************
+(ROOT
+  (S
+    (NP (PRP$ My) (NN dog))
+    (ADVP (RB always))
+    (VP
+      (VBZ growls)
+      (PP (IN at) (NP (DT the) (JJ postal) (NN carrier))))
+    (. .)))
+poss(dog-2, My-1)
+nsubj(growls-4, dog-2)
+advmod(growls-4, always-3)
+root(ROOT-0, growls-4)
+det(carrier-8, the-6)
+amod(carrier-8, postal-7)
+prep_at(growls-4, carrier-8)
+
+
+tree1: (VBZ growls)
+tree2: (NN dog)
+Noun: 'dog-NN' is Singular (3rd) 2
+Verb: 'growls-VBZ' is 'Singular 2
+-----------AC-----------
+
+
+***************
+Basketballs roll across the floor.
+***************
+(ROOT
+  (S
+    (NP (NNS Basketballs))
+    (VP (VBP roll) (PP (IN across) (NP (DT the) (NN floor))))
+    (. .)))
+nsubj(roll-2, Basketballs-1)
+root(ROOT-0, roll-2)
+det(floor-5, the-4)
+prep_across(roll-2, floor-5)
+
+
+tree1: (VBP roll)
+tree2: (NNS Basketballs)
+plural_noun_tags: NNS
+Noun: 'Basketballs-NNS' is Plural (3rd) 2
+Verb: 'roll-VBP' is 'Plural 2
+-----------AC-----------
+
+
+***************
+I don’t understand the assignment.
+***************
+(ROOT
+  (S
+    (NP (PRP I))
+    (VP
+      (VBP do)
+      (RB n't)
+      (VP (VB understand) (NP (DT the) (NN assignment))))
+    (. .)))
+nsubj(understand-4, I-1)
+aux(understand-4, do-2)
+neg(understand-4, n't-3)
+root(ROOT-0, understand-4)
+det(assignment-6, the-5)
+dobj(understand-4, assignment-6)
+
+
+tree1: (VB understand)
+tree2: (PRP I)
+Noun: 'I-PRP' is Singular (1st) 2
+Verb: 'understand-VB' is 'Singular 2
+-----------AC-----------
+
+
+***************
+These clothes are too small for me.
+***************
+(ROOT
+  (S
+    (NP (DT These) (NNS clothes))
+    (VP
+      (VBP are)
+      (ADJP (RB too) (JJ small) (PP (IN for) (NP (PRP me)))))
+    (. .)))
+det(clothes-2, These-1)
+nsubj(small-5, clothes-2)
+cop(small-5, are-3)
+advmod(small-5, too-4)
+root(ROOT-0, small-5)
+prep_for(small-5, me-7)
+
+
+tree1: (JJ small)
+tree2: (NNS clothes)
+plural_noun_tags: NNS
+Noun: 'clothes-NNS' is Plural (3rd) 2
+Verb: 'are-VBP' is 'Plural 2
+-----------AC-----------
+
+
+***************
+Peter doesn’t like vegetables.
+***************
+(ROOT
+  (S
+    (NP (NNP Peter))
+    (VP (VBZ does) (RB n't) (VP (VB like) (NP (NNS vegetables))))
+    (. .)))
+nsubj(like-4, Peter-1)
+aux(like-4, does-2)
+neg(like-4, n't-3)
+root(ROOT-0, like-4)
+dobj(like-4, vegetables-5)
+
+
+tree1: (VB like)
+tree2: (NNP Peter)
+Noun: 'Peter-NNP' is Singular (3rd) 2
+Verb: 'like-VB' is 'Singular 2
+-----------AC-----------
+
+
+***************
+
+***************
+
+ Wasn't able to parse input 
+
+list index out of range
+-----------AC-----------
+
+

@@ -3,15 +3,18 @@ import parsers
 import tree_utils
 from cmd_utils import log
 import cache_utils
-
+# UPdated , make verb "am" to singular_verb_tags
 
 singluar_noun_tags = ('NN', 'NNP')
 plural_noun_tags = ('NNS', 'NNPS')
 # We manually disambiguate Pronouns
 noun_tags = singluar_noun_tags + plural_noun_tags + ('PRP',)
+# Bug here
+# plural_verb_tags = ('VBZ',)
+# singular_verb_tags = ('VBP',)
+plural_verb_tags = ('VBP',)
+singular_verb_tags = ('VBZ',)
 
-plural_verb_tags = ('VBZ',)
-singular_verb_tags = ('VBP',)
 general_verb_tags = ('VBD', 'VB')
 verb_tags = singular_verb_tags + plural_verb_tags + general_verb_tags
 
@@ -20,7 +23,8 @@ singluar_prop_nouns = ('he', 'she', 'i', 'him', 'me', 'myself', 'it')
 
 
 def check_node_agreement(tree_one, tree_two):
-
+    print("tree1:", tree_one)
+    print("tree2:",tree_two)
     # First determine which node is the noun node
     if tree_one.label() in noun_tags and tree_two.label() in noun_tags:
         best_pair = select_best_noun_verb(tree_one, tree_two)
@@ -39,6 +43,7 @@ def check_node_agreement(tree_one, tree_two):
         noun_3rd_person = True
         noun_singular = True
     elif noun_tree.label() in plural_noun_tags:
+        print("plural_noun_tags:", noun_tree.label())
         noun_3rd_person = True
         noun_singular = False
     # In pronoun siutation and need to disambiguate
@@ -64,21 +69,37 @@ def check_node_agreement(tree_one, tree_two):
 
     log("Noun: Looks like '%s-%s' is %s (%s)" % (noun_tree[0], noun_tree.label(), 'Singular' if noun_singular else 'Plural', "3rd" if noun_3rd_person else "1st"), 2)
     log("Verb: Looks like '%s-%s' is '%s" % (verb_tree[0], verb_tree.label(), 'Singular' if verb_singular else 'Plural'), 2)
-
+    print("Noun: '%s-%s' is %s (%s)" % (noun_tree[0], noun_tree.label(), 'Singular' if noun_singular else 'Plural', "3rd" if noun_3rd_person else "1st"), 2)
+    print("Verb: '%s-%s' is '%s" % (verb_tree[0], verb_tree.label(), 'Singular' if verb_singular else 'Plural'), 2)
+    
     noun_1st_person = not noun_3rd_person
-    is_vbp = verb_tree.label() == "VBP"
-    is_vbz = verb_tree.label() == "VBZ"
+
+    # bug for "am"
+    is_vbp = (verb_tree.label() == "VBP" and not verb_tree[0].lower() == "am")
+    is_vbz = (verb_tree.label() == "VBZ" or verb_tree[0].lower() == "am")
+   
+  
+   
+    # is_vbp = not verb_tree[0].lower() == "am"
+    # is_vbz = (verb_tree[0].lower() == "am")
+    
 
     if verb_tree.label() in general_verb_tags:
+        
         return True
     elif noun_singular and noun_1st_person and is_vbp:
+       
         return True
     elif noun_singular and noun_3rd_person and is_vbz:
+      
         return True
     elif not noun_singular and noun_3rd_person and is_vbp:
+       
         return True
     else:
         log("DONT LIKE COMBO: %s" % ({"verb_tag": verb_tree.label(), "noun_1st_person": noun_1st_person, "noun_singular": noun_singular},), 2)
+        print("Error: %s" % ({"verb":verb_tree, "verb_tag": verb_tree.label(), "noun_1st_person": noun_1st_person, "noun_singular": noun_singular},), 2)
+        
         return False
 
 
@@ -166,7 +187,7 @@ def parse(text, use_cache=True):
             # Possession seems to be tricky for the parser, so we fudge
             # a little here
             sentence = sentence.replace("'s", '')
-            if sentence[-1] != ".":
+            if sentence and sentence[-1] != ".":
                 sentence += "."
 
             if use_cache:
@@ -176,19 +197,20 @@ def parse(text, use_cache=True):
                     num_agrees += line_agreements
                     num_not_agrees += line_non_agreements
                     num_unsure += line_unsure
-                    print("use_cache: ")
                     continue
 
             log("Looking for Sub-Verb agreement in '%s'" % (sentence,), 1)
-            print("Looking for Sub-Verb agreement in '%s'" % (sentence,), 1)
-
-            tree = parsers.parse(sentence)[0]
+            try:
+                tree = parsers.parse(sentence)[0]
+                print(tree)
+            except Exception as e:
+                print(e)
+                continue
             dependencies = parsers.dependences(sentence, use_cache=False)
             sub_verb_deps = [dep for dep in dependencies if dep['dep_name'] == 'nsubj']
-
+            # sub_verb_deps = [dep for dep in dependencies]
             if len(sub_verb_deps) == 0:
                 log("Couldn't find Subject-Verb dependency info", 1)
-                print("Couldn't find Subject-Verb dependency info", 1)
                 cache_utils.cache_set('sub_verb_agreement', sentence, (0, 0, 0))
                 continue
 
@@ -198,9 +220,7 @@ def parse(text, use_cache=True):
                 if first_node and sec_node:
 
                     log("First Dep Node: %s" % (first_node,), 2)
-                    print("First Dep Node: %s" % (first_node,), 2)
                     log("Sec Dep Node: %s" % (sec_node,), 2)
-                    print("Sec Dep Node: %s" % (sec_node,), 2)
 
                     try:
                         is_agreement = check_node_agreement(first_node, sec_node)
@@ -209,11 +229,11 @@ def parse(text, use_cache=True):
                         else:
                             line_non_agreements += 1
                         log("Agreement in sentence? %s" % (is_agreement,), 1)
-                        print("Agreement in sentence? %s" % (is_agreement,), 1)
+                       
                     except Exception as e:
                         line_unsure += 1
-                        log("Error looking for agreement? %s" % (e.message,), 2)
-                        print("Error looking for")
+                        log("Error looking for agreement? %s" % (e,), 2)
+                       
                         # No agreement in pair.  Not sure how to handle.
                         # More exhaustive search?
             if use_cache:
